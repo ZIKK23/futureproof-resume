@@ -13,15 +13,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Buat aplikasi Express
 const app = express();
 
-// Buat router Express
-const router = express.Router();
-
 // Konfigurasi Multer untuk file upload
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Definisikan rute POST untuk '/analyze'
-router.post('/analyze', upload.single('cvFile'), async (req, res) => {
+// Definisikan rute POST untuk '/analyze' langsung pada 'app'
+app.post('/analyze', upload.single('cvFile'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'CV file not found.' });
@@ -42,7 +39,6 @@ router.post('/analyze', upload.single('cvFile'), async (req, res) => {
             return res.status(400).json({ message: 'Unsupported file format.' });
         }
 
-        // (Kode untuk memanggil AI Gemini ada di sini)
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const fullPrompt = `
         YOUR ROLE: You are an expert AI Career Advisor specializing in optimizing CVs for ATS and industry relevance.
@@ -130,9 +126,6 @@ router.post('/analyze', upload.single('cvFile'), async (req, res) => {
         res.status(500).json({ message: 'An internal error occurred.' });
     }
 });
-
-// Gunakan router pada path '/api'
-app.use('/api', router);
 
 // Ekspor handler untuk Netlify
 module.exports.handler = serverless(app);
